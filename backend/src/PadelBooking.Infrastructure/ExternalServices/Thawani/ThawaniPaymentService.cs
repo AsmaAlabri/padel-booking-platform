@@ -136,7 +136,7 @@ public class ThawaniPaymentService : IThawaniPaymentService
     private class ThawaniSessionEnvelope
     {
         [JsonPropertyName("success")] public bool Success { get; set; }
-        [JsonPropertyName("code")] public string? Code { get; set; }
+        [JsonPropertyName("code")] public System.Text.Json.JsonElement Code { get; set; }
         [JsonPropertyName("description")] public string? Description { get; set; }
         [JsonPropertyName("data")] public ThawaniSessionData? Data { get; set; }
     }

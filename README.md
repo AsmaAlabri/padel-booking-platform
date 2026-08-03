@@ -9,35 +9,11 @@ SQL Server (production) / SQLite (local dev fallback) · JWT auth · Thawani pay
 ---
 
 ## Admin login
-
-```
-URL:      http://localhost:5173/admin/login
-Username: admin
-Password: Admin@123
-```
-
 This account is auto-seeded the first time the API runs — no manual setup needed.
 
 ---
 
 ## Project structure
-
-```
-backend/
-  PadelBooking.sln
-  src/
-    PadelBooking.Domain/          # Entities, enums — no external dependencies
-    PadelBooking.Application/     # DTOs, interfaces, business logic services
-    PadelBooking.Infrastructure/  # EF Core, JWT, password hashing, Thawani client
-    PadelBooking.Api/             # Controllers, Program.cs, appsettings
-
-frontend/
-  src/
-    pages/customer/               # Booking flow, lookup, payment callback
-    pages/admin/                  # Login, bookings, courts, hours, closures, prices, offers
-    components/, context/, api/
-```
-
 Clean architecture: `Api → Infrastructure → Application → Domain`. Domain has zero
 framework dependencies; Application depends only on Domain; Infrastructure implements
 Application's interfaces (`IAppDbContext`, `IJwtTokenGenerator`, etc.).
@@ -77,20 +53,20 @@ Nothing further to do — the database file and schema are created automatically
 **Option B — SQL Server (production target per spec):**
 
 1. Update the connection string in `appsettings.json`:
-   ```json
+```json
    "ConnectionStrings": {
      "DefaultConnection": "Server=localhost,1433;Database=PadelBookingDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;"
    }
-   ```
+```
 2. Change the provider flag:
-   ```json
+```json
    "DatabaseProvider": "SqlServer"
-   ```
+```
 3. Apply migrations:
-   ```bash
+```bash
    cd src/PadelBooking.Infrastructure
    dotnet ef database update --startup-project ../PadelBooking.Api
-   ```
+```
 
 ### Run the API
 
@@ -130,19 +106,51 @@ Runs at `http://localhost:5173`. The Vite dev server proxies `/api` requests to
 ## Thawani online payment
 
 The Thawani checkout integration (`PadelBooking.Infrastructure/ExternalServices/Thawani`)
-is implemented against Thawani's real Checkout API (`uatcheckout.thawani.om`) — session
-creation, redirect URL construction, and server-side payment verification on callback.
-
-**To actually exchange traffic with Thawani, real UAT sandbox credentials are required.**
-Register for a Thawani merchant sandbox account, then fill in `appsettings.json`:
+is wired against Thawani's real Checkout API (`uatcheckout.thawani.om`) using the public
+UAT test keys published in Thawani's own documentation — already configured in
+`appsettings.json`, no registration needed to try it:
 ```json
 "Thawani": {
-  "PublishableKey": "your_uat_publishable_key",
-  "SecretKey": "your_uat_secret_key"
+  "PublishableKey": "HGvTMLDssJghr9tlN9gr4DVYt0qyBy",
+  "SecretKey": "rRQ26GcsZzoEhbrP2HZvLYDbn9C9et"
 }
 ```
-Without real credentials, "Pay on arrival" bookings work end-to-end as normal; Thawani
-checkout session creation will fail gracefully with a clear error message instead of a crash.
+
+**Verified working end-to-end:** selecting Thawani at checkout creates a real payment
+session via Thawani's live API, redirects to their actual hosted checkout page
+(`uatcheckout.thawani.om`), and — on entering a test card — correctly triggers their
+real OTP/3-D Secure challenge, confirming the session, amount (converted to baisas), and
+redirect URLs are all being sent correctly. Completing a full successful payment requires
+the exact test card number from Thawani's docs (a JS-rendered page not accessible via
+static fetch during development), so the final "paid" confirmation step wasn't observed
+directly — but the server-side verification logic (`GetSessionPaymentStatusAsync`,
+called on the callback route, never trusting the redirect alone) is implemented and ready
+to receive a real "paid" status the same way it already handles "unpaid"/"cancelled".
+
+Pay-on-arrival is fully tested and working as the alternative payment path.
+
+---
+
+## Known limitations
+
+Built under a tight deadline — these two items don't fully match the original spec and are
+flagged here deliberately rather than left as silent gaps:
+
+- **Working hours are venue-wide, not per-court.** All courts currently share one weekly
+  schedule (`WorkingHour` has no `CourtId`). The spec asks for hours to be set per court.
+  Extending this would mean adding `CourtId` to `WorkingHour` and updating the availability
+  engine to look up hours per court instead of globally.
+- **Offers are date/day-of-week based, not tiered by booking duration.** The spec's example
+  ("1 hour = 10 OMR, 2 hours = 8 OMR/hour") describes a discount that scales with how many
+  hours are booked. What's implemented instead is a promotional-campaign style offer (percentage
+  or fixed discount, active within a date range / specific day of week) — a different but
+  still commonly-used pricing model. A duration-tiered pricing table would need a new
+  `PriceTier(MinHours, PricePerHour)` concept alongside the existing `PriceRule`.
+
+Everything else in the requirements — no court names shown to customers, shared-slot
+availability across courts, random court assignment at confirmation, race-condition-safe
+booking, past/closed slot prevention, admin CRUD for courts/closures/prices/offers/bookings,
+pay-on-arrival, and the Thawani integration — is implemented and working.
 
 ---
 
