@@ -3,6 +3,7 @@ import { api } from '../../api/client.js'
 import { useAuth } from '../../context/AuthContext.jsx'
 
 const STATUSES = ['Pending', 'Confirmed', 'Cancelled', 'Completed', 'NoShow', 'Expired']
+const PAYMENT_METHODS = [{ value: 'PayOnArrival', label: 'Pay on arrival' }, { value: 'Thawani', label: 'Thawani' }]
 
 function formatTime(hms) {
   const [h, m] = hms.split(':')
@@ -15,9 +16,10 @@ function formatTime(hms) {
 export default function BookingsPage() {
   const { session } = useAuth()
   const [bookings, setBookings] = useState([])
+  const [courts, setCourts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [filters, setFilters] = useState({ date: '', status: '', search: '' })
+  const [filters, setFilters] = useState({ date: '', status: '', courtId: '', paymentMethod: '', search: '' })
 
   function load() {
     setLoading(true)
@@ -28,7 +30,11 @@ export default function BookingsPage() {
       .finally(() => setLoading(false))
   }
 
-  useEffect(load, [filters.date, filters.status]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    api.get('/admin/courts', { token: session.token }).then(setCourts).catch(() => {})
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(load, [filters.date, filters.status, filters.courtId, filters.paymentMethod]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function updateStatus(id, status) {
     try {
@@ -64,6 +70,20 @@ export default function BookingsPage() {
             <select value={filters.status} onChange={e => setFilters({ ...filters, status: e.target.value })}>
               <option value="">All</option>
               {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div className="field" style={{ marginBottom: 0 }}>
+            <label>Court</label>
+            <select value={filters.courtId} onChange={e => setFilters({ ...filters, courtId: e.target.value })}>
+              <option value="">All courts</option>
+              {courts.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          <div className="field" style={{ marginBottom: 0 }}>
+            <label>Payment method</label>
+            <select value={filters.paymentMethod} onChange={e => setFilters({ ...filters, paymentMethod: e.target.value })}>
+              <option value="">All</option>
+              {PAYMENT_METHODS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
             </select>
           </div>
           <div className="field" style={{ marginBottom: 0, flex: 1 }}>

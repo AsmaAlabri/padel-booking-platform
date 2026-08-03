@@ -73,7 +73,7 @@ export default function BookingPage() {
         date,
         startTime: selectedStart,
         durationHours: duration,
-        customerName: form.customerName,
+        customerName: form.customerName || null,
         customerPhone: form.customerPhone,
         customerEmail: form.customerEmail || null,
         paymentMethod: Number(form.paymentMethod) === 1 ? 'Thawani' : 'PayOnArrival'
@@ -184,8 +184,8 @@ export default function BookingPage() {
 
           <div className="field-row">
             <div className="field">
-              <label htmlFor="name">Full name</label>
-              <input id="name" required value={form.customerName} onChange={e => setForm({ ...form, customerName: e.target.value })} />
+              <label htmlFor="name">Full name (optional)</label>
+              <input id="name" value={form.customerName} onChange={e => setForm({ ...form, customerName: e.target.value })} />
             </div>
             <div className="field">
               <label htmlFor="phone">Phone number</label>

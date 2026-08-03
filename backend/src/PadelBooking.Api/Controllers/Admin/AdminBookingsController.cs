@@ -19,10 +19,12 @@ public class AdminBookingsController : AdminControllerBase
     public async Task<IActionResult> GetAll(
         [FromQuery] DateOnly? date,
         [FromQuery] BookingStatus? status,
+        [FromQuery] int? courtId,
+        [FromQuery] PaymentMethod? paymentMethod,
         [FromQuery] string? search,
         CancellationToken cancellationToken)
     {
-        var bookings = await _adminBookingService.GetAllAsync(date, status, search, cancellationToken);
+        var bookings = await _adminBookingService.GetAllAsync(date, status, courtId, paymentMethod, search, cancellationToken);
         return Ok(bookings);
     }
 

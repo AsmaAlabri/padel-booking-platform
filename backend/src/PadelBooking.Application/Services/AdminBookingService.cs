@@ -19,6 +19,8 @@ public class AdminBookingService : IAdminBookingService
     public async Task<List<AdminBookingDto>> GetAllAsync(
         DateOnly? date = null,
         BookingStatus? status = null,
+        int? courtId = null,
+        PaymentMethod? paymentMethod = null,
         string? search = null,
         CancellationToken cancellationToken = default)
     {
@@ -36,6 +38,16 @@ public class AdminBookingService : IAdminBookingService
         if (status is not null)
         {
             query = query.Where(b => b.Status == status.Value);
+        }
+
+        if (courtId is not null)
+        {
+            query = query.Where(b => b.CourtId == courtId.Value);
+        }
+
+        if (paymentMethod is not null)
+        {
+            query = query.Where(b => b.PaymentMethod == paymentMethod.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(search))
@@ -84,8 +96,6 @@ public class AdminBookingService : IAdminBookingService
             return Result<AdminBookingDto>.Failure("Booking not found.", ResultErrorType.NotFound);
         }
 
-        // Freeing the court-hours back up only makes sense when moving to Cancelled —
-        // Completed/NoShow are for bookings whose time has already passed.
         if (newStatus == BookingStatus.Cancelled && booking.Status != BookingStatus.Cancelled)
         {
             var slots = await _db.BookingSlots

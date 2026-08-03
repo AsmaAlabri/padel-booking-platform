@@ -141,7 +141,7 @@ public class BookingService : IBookingService
             var booking = new Booking
             {
                 BookingReference = bookingReference,
-                CustomerName = request.CustomerName,
+                CustomerName = request.CustomerName ?? string.Empty,
                 CustomerPhone = request.CustomerPhone,
                 CustomerEmail = request.CustomerEmail,
                 BookingDate = request.Date,

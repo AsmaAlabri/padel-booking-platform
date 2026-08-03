@@ -9,6 +9,8 @@ public interface IAdminBookingService
     Task<List<AdminBookingDto>> GetAllAsync(
         DateOnly? date = null,
         BookingStatus? status = null,
+        int? courtId = null,
+        PaymentMethod? paymentMethod = null,
         string? search = null,
         CancellationToken cancellationToken = default);
 

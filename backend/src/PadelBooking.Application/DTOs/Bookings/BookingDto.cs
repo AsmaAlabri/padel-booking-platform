@@ -14,8 +14,8 @@ public class CreateBookingRequest
     [Range(1, 4, ErrorMessage = "Bookings can be 1 to 4 consecutive hours.")]
     public int DurationHours { get; set; } = 1;
 
-    [Required, MaxLength(150)]
-    public string CustomerName { get; set; } = string.Empty;
+    [MaxLength(150)]
+    public string? CustomerName { get; set; }
 
     [Required, Phone, MaxLength(30)]
     public string CustomerPhone { get; set; } = string.Empty;
@@ -27,10 +27,6 @@ public class CreateBookingRequest
     public PaymentMethod PaymentMethod { get; set; }
 }
 
-/// <summary>
-/// Public booking confirmation. Deliberately omits CourtId/Court name (Rule #7)
-/// and internal fields like OfferId — only what the customer needs to see.
-/// </summary>
 public class BookingDto
 {
     public string BookingReference { get; set; } = string.Empty;
