@@ -134,7 +134,7 @@ export default function BookingPage() {
         {loadError && <div className="alert alert-error">{loadError}</div>}
 
         {!loadingSlots && !loadError && slots.length === 0 && (
-          <p className="muted">The venue is closed on this date.</p>
+          <p className="muted">{date < todayIso() ? "You can't book a date in the past." : 'The venue is closed on this date.'}</p>
         )}
 
         {!loadingSlots && slots.length > 0 && (
