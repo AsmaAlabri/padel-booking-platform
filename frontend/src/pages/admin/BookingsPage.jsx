@@ -116,6 +116,9 @@ export default function BookingsPage() {
                     <td>
                       <div>{b.customerName}</div>
                       <div className="muted" style={{ fontSize: '0.8rem' }}>{b.customerPhone}</div>
+                      {b.playerNames && b.playerNames.length > 0 && (
+                        <div className="muted" style={{ fontSize: '0.8rem' }}>+ {b.playerNames.join(', ')}</div>
+                      )}
                     </td>
                     <td>{b.bookingDate}<br /><span className="muted">{formatTime(b.startTime)} – {formatTime(b.endTime)}</span></td>
                     <td>{b.courtName}</td>

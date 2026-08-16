@@ -28,6 +28,7 @@ public class AdminBookingService : IAdminBookingService
             .Include(b => b.Court)
             .Include(b => b.Offer)
             .Include(b => b.Payment)
+            .Include(b => b.Players)
             .AsQueryable();
 
         if (date is not null)
@@ -73,6 +74,7 @@ public class AdminBookingService : IAdminBookingService
             .Include(b => b.Court)
             .Include(b => b.Offer)
             .Include(b => b.Payment)
+            .Include(b => b.Players)
             .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
 
         if (booking is null)
@@ -89,6 +91,7 @@ public class AdminBookingService : IAdminBookingService
             .Include(b => b.Court)
             .Include(b => b.Offer)
             .Include(b => b.Payment)
+            .Include(b => b.Players)
             .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
 
         if (booking is null)
@@ -128,6 +131,7 @@ public class AdminBookingService : IAdminBookingService
         PaymentMethod = b.PaymentMethod,
         PaymentStatus = b.Payment?.Status ?? PaymentStatus.NotRequired,
         Status = b.Status,
-        CreatedAt = b.CreatedAt
+        CreatedAt = b.CreatedAt,
+        PlayerNames = b.Players.Select(p => p.Name).ToList()
     };
 }

@@ -24,6 +24,7 @@ export default function BookingPage() {
   const [duration, setDuration] = useState(1)
 
   const [form, setForm] = useState({ customerName: '', customerPhone: '', customerEmail: '', paymentMethod: 0 })
+  const [playerNames, setPlayerNames] = useState([''])
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [confirmation, setConfirmation] = useState(null)
@@ -76,7 +77,8 @@ export default function BookingPage() {
         customerName: form.customerName || null,
         customerPhone: form.customerPhone,
         customerEmail: form.customerEmail || null,
-        paymentMethod: Number(form.paymentMethod) === 1 ? 'Thawani' : 'PayOnArrival'
+        paymentMethod: Number(form.paymentMethod) === 1 ? 'Thawani' : 'PayOnArrival',
+        playerNames: playerNames.map(n => n.trim()).filter(Boolean)
       })
 
       if (Number(form.paymentMethod) === 1) {
@@ -108,8 +110,14 @@ export default function BookingPage() {
           <div className="row-between"><span className="muted">Time</span><strong>{formatTime(confirmation.startTime)} – {formatTime(confirmation.endTime)}</strong></div>
           <div className="row-between"><span className="muted">Total</span><strong>{confirmation.totalPrice.toFixed(3)} OMR</strong></div>
           <div className="row-between"><span className="muted">Payment</span><strong>{confirmation.paymentMethod === 'Thawani' ? 'Thawani (paid online)' : 'Pay on arrival'}</strong></div>
+          {confirmation.playerNames && confirmation.playerNames.length > 0 && (
+            <div className="row-between" style={{ alignItems: 'flex-start' }}>
+              <span className="muted">Playing with</span>
+              <strong style={{ textAlign: 'right' }}>{confirmation.playerNames.join(', ')}</strong>
+            </div>
+          )}
         </div>
-        <button className="btn btn-primary" style={{ marginTop: 20, width: '100%' }} onClick={() => { setConfirmation(null); setSelectedStart(null) }}>
+        <button className="btn btn-primary" style={{ marginTop: 20, width: '100%' }} onClick={() => { setConfirmation(null); setSelectedStart(null); setPlayerNames(['']) }}>
           Book another slot
         </button>
       </div>
@@ -196,6 +204,44 @@ export default function BookingPage() {
           <div className="field">
             <label htmlFor="email">Email (optional)</label>
             <input id="email" type="email" value={form.customerEmail} onChange={e => setForm({ ...form, customerEmail: e.target.value })} />
+          </div>
+
+          <div className="field">
+            <label>Playing with friends? (optional)</label>
+            <p className="muted" style={{ marginTop: -4, marginBottom: 8, fontSize: '0.85rem' }}>
+              Padel is best in a group — add up to 3 teammates so they show up on your booking.
+            </p>
+            {playerNames.map((name, i) => (
+              <div className="row" key={i} style={{ marginBottom: 8, gap: 8 }}>
+                <input
+                  placeholder={`Teammate ${i + 1} name`}
+                  value={name}
+                  onChange={e => {
+                    const next = [...playerNames]
+                    next[i] = e.target.value
+                    setPlayerNames(next)
+                  }}
+                  style={{ flex: 1 }}
+                />
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => setPlayerNames(playerNames.filter((_, idx) => idx !== i))}
+                  aria-label="Remove teammate"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            {playerNames.length < 3 && (
+              <button
+                type="button"
+                className="btn"
+                onClick={() => setPlayerNames([...playerNames, ''])}
+              >
+                + Add teammate
+              </button>
+            )}
           </div>
 
           <div className="field">

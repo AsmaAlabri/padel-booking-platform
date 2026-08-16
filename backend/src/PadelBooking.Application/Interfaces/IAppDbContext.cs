@@ -17,6 +17,7 @@ public interface IAppDbContext
     DbSet<Offer> Offers { get; }
     DbSet<Booking> Bookings { get; }
     DbSet<BookingSlot> BookingSlots { get; }
+    DbSet<BookingPlayer> BookingPlayers { get; }
     DbSet<Payment> Payments { get; }
     DbSet<AdminUser> AdminUsers { get; }
 

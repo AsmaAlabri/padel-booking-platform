@@ -25,6 +25,10 @@ public class CreateBookingRequest
 
     [Required]
     public PaymentMethod PaymentMethod { get; set; }
+
+    /// <summary>Optional teammates to invite onto the booking (padel is typically played in groups of up to 4).</summary>
+    [MaxLength(3, ErrorMessage = "You can add up to 3 teammates in addition to yourself.")]
+    public List<string>? PlayerNames { get; set; }
 }
 
 public class BookingDto
@@ -43,4 +47,5 @@ public class BookingDto
     public PaymentMethod PaymentMethod { get; set; }
     public BookingStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
+    public List<string> PlayerNames { get; set; } = new();
 }

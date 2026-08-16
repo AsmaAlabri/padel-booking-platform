@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PadelBooking.Infrastructure.Persistence;
 
@@ -10,10 +11,13 @@ using PadelBooking.Infrastructure.Persistence;
 namespace PadelBooking.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260816120000_AddBookingPlayers")]
+    partial class AddBookingPlayers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
+
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
 
@@ -449,6 +453,7 @@ namespace PadelBooking.Infrastructure.Migrations
                 {
                     b.Navigation("Players");
                 });
+              
 
             modelBuilder.Entity("PadelBooking.Domain.Entities.BookingPlayer", b =>
                 {

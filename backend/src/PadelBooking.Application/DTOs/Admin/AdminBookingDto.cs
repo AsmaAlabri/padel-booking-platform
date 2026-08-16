@@ -22,6 +22,7 @@ public class AdminBookingDto
     public PaymentStatus PaymentStatus { get; set; }
     public BookingStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
+    public List<string> PlayerNames { get; set; } = new();
 }
 
 public class UpdateBookingStatusRequest

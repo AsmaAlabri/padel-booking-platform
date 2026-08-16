@@ -17,6 +17,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Offer> Offers => Set<Offer>();
     public DbSet<Booking> Bookings => Set<Booking>();
     public DbSet<BookingSlot> BookingSlots => Set<BookingSlot>();
+    public DbSet<BookingPlayer> BookingPlayers => Set<BookingPlayer>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
 

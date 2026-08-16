@@ -39,4 +39,7 @@ public class Booking : BaseEntity
     public BookingStatus Status { get; set; } = BookingStatus.Pending;
 
     public Payment? Payment { get; set; }
+
+    /// <summary>Teammates invited onto this booking by the primary customer (optional, informational).</summary>
+    public ICollection<BookingPlayer> Players { get; set; } = new List<BookingPlayer>();
 }

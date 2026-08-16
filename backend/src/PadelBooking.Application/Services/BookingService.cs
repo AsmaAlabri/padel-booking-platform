@@ -157,6 +157,23 @@ public class BookingService : IBookingService
             };
             _db.Bookings.Add(booking);
 
+            var playerNames = (request.PlayerNames ?? new List<string>())
+                .Select(n => n?.Trim())
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .Select(n => n!)
+                .Distinct()
+                .Take(3)
+                .ToList();
+
+            foreach (var playerName in playerNames)
+            {
+                _db.BookingPlayers.Add(new BookingPlayer
+                {
+                    Booking = booking,
+                    Name = playerName
+                });
+            }
+
             foreach (var hour in requestedHours)
             {
                 _db.BookingSlots.Add(new BookingSlot
@@ -195,7 +212,8 @@ public class BookingService : IBookingService
                     OfferApplied = offer?.Name,
                     PaymentMethod = booking.PaymentMethod,
                     Status = booking.Status,
-                    CreatedAt = booking.CreatedAt
+                    CreatedAt = booking.CreatedAt,
+                    PlayerNames = playerNames
                 });
             }
             catch (DbUpdateException)
@@ -216,6 +234,7 @@ public class BookingService : IBookingService
     {
         var booking = await _db.Bookings
             .Include(b => b.Offer)
+            .Include(b => b.Players)
             .FirstOrDefaultAsync(b => b.BookingReference == bookingReference, cancellationToken);
 
         if (booking is null)
@@ -230,6 +249,7 @@ public class BookingService : IBookingService
     {
         var booking = await _db.Bookings
             .Include(b => b.Offer)
+            .Include(b => b.Players)
             .FirstOrDefaultAsync(b => b.BookingReference == bookingReference, cancellationToken);
 
         if (booking is null)
@@ -275,7 +295,8 @@ public class BookingService : IBookingService
         OfferApplied = b.Offer?.Name,
         PaymentMethod = b.PaymentMethod,
         Status = b.Status,
-        CreatedAt = b.CreatedAt
+        CreatedAt = b.CreatedAt,
+        PlayerNames = b.Players.Select(p => p.Name).ToList()
     };
 
     private async Task<string> GenerateUniqueReferenceAsync(CancellationToken cancellationToken)
